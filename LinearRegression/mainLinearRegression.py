@@ -3,6 +3,8 @@ import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from LinearRegression import LinearRegressionFullBatch, LinearRegressionStochastic, LinearRegressionMiniBatch
+from ModelSelection.GridSearch import GridSearch
+from ModelSelection.TrainTestSplit import TrainTestSplit
 
 use_sklearn = False
 
@@ -32,21 +34,18 @@ else:
 y_train = np.array(y_train).squeeze()
 y_test = np.array(y_test).squeeze()
 
-# normalization
+# Normalization
 mean = np.mean(x_train, axis=0)
 std_dev = np.std(x_train, axis=0)
 x_train = (x_train - mean)/std_dev
 x_test = (x_test-mean)/std_dev
-
-# add bias to training data
-x_train = np.c_[x_train, np.ones(x_train.shape[0])]
 
 # Linear regression using full_batch
 model_full_batches = LinearRegressionFullBatch(n_features=x_train.shape[1], lambda_=0.1, reg_type='L2', steps=1000)
 model_full_batches.fit(x_train, y_train)
 
 prediction = model_full_batches.predict(x_test)
-model_full_batches.plot()
+#model_full_batches.plot()
 mae_fb, mse_fb, rmse_fb, r2_fb = model_full_batches.get_scores(prediction, y_test)
 print('----------SCORES FOR FULL BATCH-------------')
 print(f'|\t MAE \t|\t MSE \t|\t RMSE \t|\t R^2 \t|')
@@ -58,7 +57,7 @@ model_stochastic = LinearRegressionStochastic(n_features=x_train.shape[1], reg_t
 model_stochastic.fit(x_train, y_train)
 
 prediction = model_stochastic.predict(x_test)
-model_stochastic.plot(x_train.shape[0])
+#model_stochastic.plot(x_train.shape[0])
 
 mae_s, mse_s, rmse_s, r2_s = model_stochastic.get_scores(prediction, y_test)
 print('-----------SCORES FOR STOCHASTIC---------------')
@@ -72,7 +71,7 @@ model_mini_batch = LinearRegressionMiniBatch(n_features=x_train.shape[1], reg_ty
 model_mini_batch.fit(x_train, y_train)
 
 prediction = model_mini_batch.predict(x_test)
-model_mini_batch.plot()
+#model_mini_batch.plot()
 
 mae_mb, mse_mb, rmse_mb, r2_mb = model_mini_batch.get_scores(prediction, y_test)
 print('-----------SCORES FOR MINI BATCH---------------')
@@ -80,6 +79,36 @@ print(f'|\t MAE \t|\t MSE \t|\t RMSE \t|\t R^2 \t|')
 print('|----------------------------------------------------------------|')
 print(f"|\t {mae_mb:0,.2f} \t|\t {mse_mb:0,.2f} \t|\t {rmse_mb:0,.2f} \t|\t {r2_mb:0,.2f} \t|")
 
+# Performing Grid Search with Linear Regression with std GD
+param_grid = {
+    'n_features' : [x_train.shape[1]],
+    'learning_rate' : [1e-2, 1e-3, 1e-4],
+    'reg_type' : ['L1', 'L2'],
+    'lambda_' : [0.1, 0.5, 0.9],
+}
+gs = GridSearch(model=LinearRegressionFullBatch, param_grid = param_grid, cv=5, metric="R2")
+result_gs = gs.grid_search(x_train, y_train, x_test, y_test)
+
+print("The best configuration is:\n")
+print("Best Hyperparameters:", result_gs['best_params'])
+print("Best Cross-Validated Mean Score:", result_gs['best_score'])
+
+# Perform an holdout split
+split_h = TrainTestSplit(method='holdout')
+
+[x_train, x_test, y_train, y_test] = split_h.holdout(x, y, 0.8)
+
+print("Training set: \n", x_train, y_train)
+print("Test set: \n", x_test, y_test)
+
+# Perform a K-Fold Cross Validation
+split_k = TrainTestSplit(method='kfold')
+
+for i, (x_train, x_val, y_train, y_val) in enumerate(split_k.k_fold(x, y, 4)):
+    print(f"Fold {i + 1}:")
+    print("Training set:", x_train, y_train)
+    print("Validation set:", x_val, y_val)
+    print()
 
 
 
