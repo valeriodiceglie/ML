@@ -8,13 +8,13 @@ from ModelSelection.TrainTestSplit import TrainTestSplit
 
 use_sklearn = False
 
-# load dataset
+# Load dataset
 Diabetes = load_diabetes()
 df = pd.DataFrame(columns=Diabetes["feature_names"], data=Diabetes["data"])
 df["target"] = Diabetes["target"]
 print(df.describe())
 
-# shuffle samples
+# Shuffle samples
 df = df.sample(frac=1).reset_index(drop=True)
 x = df[df.columns[:-1]].values
 y = df[df.columns[-1:]].values
@@ -22,7 +22,7 @@ y = df[df.columns[-1:]].values
 if use_sklearn:
     [x_train, x_test, y_train, y_test] = train_test_split(x, y, test_size=0.25)
 else:
-    # compute train_index for holdout 80/20
+    # Compute train_index for holdout 80/20
     train_index = round(len(x) * 0.8)
 
     x_train = x[:train_index]
@@ -83,10 +83,10 @@ print(f"|\t {mae_mb:0,.2f} \t|\t {mse_mb:0,.2f} \t|\t {rmse_mb:0,.2f} \t|\t {r2_
 param_grid = {
     'n_features' : [x_train.shape[1]],
     'learning_rate' : [1e-2, 1e-3, 1e-4],
-    'reg_type' : ['L1', 'L2'],
+    'reg_type' : [None, 'L1', 'L2'],
     'lambda_' : [0.1, 0.5, 0.9],
 }
-gs = GridSearch(model=LinearRegressionFullBatch, param_grid = param_grid, cv=5, metric="R2")
+gs = GridSearch(model=LinearRegressionFullBatch, param_grid = param_grid, cv=5, metric="RMSE")
 result_gs = gs.grid_search(x_train, y_train, x_test, y_test)
 
 print("The best configuration is:\n")

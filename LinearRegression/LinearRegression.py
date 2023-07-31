@@ -51,7 +51,7 @@ class LinearRegression:
 
 class LinearRegressionMiniBatch(LinearRegression):
     def __init__(self, learning_rate=1e-2, steps=2000, n_features=1, num_batch=1,
-                 lambda_=1, reg_type='L2'):
+                 lambda_=0, reg_type=None):
         super().__init__(n_features, learning_rate, steps, lambda_, reg_type)
         self.num_batch = num_batch
 

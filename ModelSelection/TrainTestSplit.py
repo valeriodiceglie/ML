@@ -12,13 +12,13 @@ class TrainTestSplit:
             self.k_fold(x, y, k)
 
     def holdout(self, x, y, holdout = 0.8):
-        '''
-        Perform an holdout split of the dataset
+        """
+        Perform a holdout split of the dataset
         :param x: the feature matrix
         :param y: the target variable
         :param holdout: the holdout percentage
         :return: x_train, x_test, y_train, y_test --- The Training and Test set
-        '''
+        """
         # compute train_index for holdout 80/20
         train_index = round(len(x) * holdout)
 
@@ -31,13 +31,13 @@ class TrainTestSplit:
         return x_train, x_test, y_train, y_test
 
     def k_fold(self, x, y, k):
-        '''
+        """
         Perform a k-fold split of the given dataset
         :param x: The feature matrix
         :param y: The target variable nd-array
         :param k: The number of folds
         :return:
-        '''
+        """
         n = len(x)
         fold_size = n // k
         indices = np.arange(n)

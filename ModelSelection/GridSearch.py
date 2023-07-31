@@ -27,39 +27,35 @@ class GridSearch:
         # Generate all combinations of hyperparameter values
         param_combinations = list(itertools.product(*self.param_grid.values()))
 
-        # Perform Grid Search Cross Validation
+        # Perform Grid Search 
         for params in param_combinations:
             param_dict = {param_name: param_value for param_name, param_value in zip(self.param_grid.keys(), params)}
             model_instance = self.model(**param_dict)
             model_instance.fit(x_train, y_train)
             prediction = model_instance.predict(x_test)
 
-            # Perform cross-validation and calculate mean score
+            # calculate scores
             mae, mse, rmse, r2 = model_instance.get_scores(prediction, y_test)
-            mean_mae = mae.mean()
-            mean_mse = mse.mean()
-            mean_rmse = rmse.mean()
-            mean_r2 = r2.mean()
 
             # Check if the current combination of hyperparameters gives a better score
             if self.metric == 'MAE':
-                if self.best_score_ is None or mean_mae > self.best_score_:
-                    self.best_score_ = mean_mae
+                if self.best_score_ is None or mae > self.best_score_:
+                    self.best_score_ = mae
                     self.best_params_ = param_dict
 
             if self.metric == 'MSE':
-                if self.best_score_ is None or mean_mse > self.best_score_:
-                    self.best_score_ = mean_mse
+                if self.best_score_ is None or mse > self.best_score_:
+                    self.best_score_ = mse
                     self.best_params_ = param_dict
 
             if self.metric == 'RMSE':
-                if self.best_score_ is None or mean_rmse > self.best_score_:
-                    self.best_score_ = mean_rmse
+                if self.best_score_ is None or rmse > self.best_score_:
+                    self.best_score_ = rmse
                     self.best_params_ = param_dict
 
             if self.metric == 'R2':
-                if self.best_score_ is None or mean_r2 > self.best_score_:
-                    self.best_score_ = mean_r2
+                if self.best_score_ is None or r2 > self.best_score_:
+                    self.best_score_ = r2
                     self.best_params_ = param_dict
 
         return {'best_params': self.best_params_, 'best_score': self.best_score_}
