@@ -93,7 +93,7 @@ print("The best configuration is:\n")
 print("Best Hyperparameters:", result_gs['best_params'])
 print("Best Cross-Validated Mean Score:", result_gs['best_score'])
 
-# Perform an holdout split
+# Perform a holdout split
 split_h = TrainTestSplit(method='holdout')
 
 [x_train, x_test, y_train, y_test] = split_h.holdout(x, y, 0.8)
